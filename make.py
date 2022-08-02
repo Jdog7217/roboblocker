@@ -10,6 +10,7 @@ with acc:
             verify BOOLEAN, 
             method INTEGER,
             channel INTEGER,
-            role INTEGER
+            role INTEGER,
+            disabled BOOLEAN
         );
     """)  

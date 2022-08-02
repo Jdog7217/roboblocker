@@ -56,7 +56,8 @@ class admin(commands.Cog):
             embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed)
     
-    @setting.command(name="verify") # we use the declared group to make a command.
+    @setting.command(name="verify") 
+    @app_commands.describe(active="When members join they needs to verify. ")
     async def verify(self, interaction: discord.Interaction,active:bool) -> None:
         """ Turns on or off verification """
         change = changesettings(interaction.guild.id,"verify",active)
@@ -67,7 +68,10 @@ class admin(commands.Cog):
             embed=discord.Embed(title="Error", description="Server not setup!", color=discord.Color.red())
             embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed)
-    @setting.command(name="channel") # we use the declared group to make a command.
+
+
+    @setting.command(name="channel") # 
+    @app_commands.describe(channel="Channel that all logs go to. ")
     async def channel(self, interaction: discord.Interaction,channel:discord.TextChannel=None) -> None:
         """ Changes the logging channel """
         change = changesettings(interaction.guild.id,"channel",channel.id)
@@ -79,5 +83,31 @@ class admin(commands.Cog):
             embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed)
 
+
+    @setting.command(name="role") 
+    @app_commands.describe(role="Role that member gets when they verify")
+    async def role(self, interaction: discord.Interaction,role:discord.Role=None) -> None:
+        """ Changes the verifacation role """
+        change = changesettings(interaction.guild.id,"role",role.id)
+        if change ==1:
+            embed=discord.Embed(title="Settings", description=f"Changed verifacation role to {role.mention}", color=discord.Color.green())
+            embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
+        else:
+            embed=discord.Embed(title="Error", description="Server not setup!", color=discord.Color.red())
+            embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
+        await interaction.response.send_message(embed=embed)
+
+    @setting.command(name="disable") 
+    @app_commands.describe(role="Role that member gets when they verify")
+    async def role(self, interaction: discord.Interaction,role:discord.Role=None) -> None:
+        """ Changes the verifacation role """
+        change = changesettings(interaction.guild.id,"role",role.id)
+        if change ==1:
+            embed=discord.Embed(title="Settings", description=f"Changed verifacation role to {role.mention}", color=discord.Color.green())
+            embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
+        else:
+            embed=discord.Embed(title="Error", description="Server not setup!", color=discord.Color.red())
+            embed.set_footer(text = f"Command ran by {interaction.user.name}",icon_url=interaction.user.avatar.url)
+        await interaction.response.send_message(embed=embed)
 async def setup(bot: commands.Bot):
     await bot.add_cog(admin(bot))
