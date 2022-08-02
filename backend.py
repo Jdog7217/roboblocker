@@ -4,6 +4,8 @@ from os.path import isfile, join
 from os import listdir
 import time
 import os
+import sqlite3 as sl
+import string
 
 def getimage(id,text):
     red = 0
@@ -52,3 +54,21 @@ def getimage(id,text):
     img_txt.putdata(pixels)
     img_txt.save(f'./images/{id}.png')
     return(f'./images/{id}.png')
+
+
+def newserver(id):
+    sqlite = sl.connect('main.db')
+    cursor = sqlite.cursor()
+    item = cursor.execute("SELECT * FROM server WHERE serverid = ?", (int(id),)).fetchone()
+    cursor.close()
+    sqlite.close()
+    if item:
+        return(1)
+    sqlite = sl.connect('main.db')
+    cursor = sqlite.cursor()
+    cursor.execute("INSERT INTO server(serverid) VALUES (?)", (int(id),))
+
+    sqlite.commit()
+    cursor.close()
+    sqlite.close()
+    return 0
