@@ -12,44 +12,42 @@ load_dotenv()
 
 
 
-class client(discord.Client):
-    def __init__(self, *, intents: discord.Intents):
-        super().__init__(intents=intents)
-        self.tree = app_commands.CommandTree(self)
-    async def setup_hook(self):
-        self.tree.copy_global_to(guild=discord.Object(id=919047940843143198))
-        await self.tree.sync(guild=discord.Object(id=919047940843143198))
+#class client(discord.Client):
+    #def __init__(self, *, intents: discord.Intents):
+        #super().__init__(intents=intents)
+        #self.tree = app_commands.CommandTree(self)
+    #async def setup_hook(self):
+        #self.tree.copy_global_to(guild=discord.Object(id=919047940843143198))
+        #await self.tree.sync(guild=discord.Object(id=919047940843143198))
 intents = discord.Intents.default()
-bot = client(intents=intents)
+intents.message_content = True
 
-
-
-class verify(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(label='Verify', style=discord.ButtonStyle.green, custom_id='persistent_view:green')
-    async def button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message('This is green.', ephemeral=True)
-
-
+#bot = client(intents=intents)
+bot = commands.Bot(command_prefix=".",intents=intents)
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} and ready to roll')
     print('------')
 
-@bot.tree.command()
-async def setup(interaction: discord.Interaction):
-    await interaction.response.defer()
-    server = newserver(interaction.guild.id)
-    if server == 0:
-        embed=discord.Embed(title="Server added!", description="Server added in our database!", color=discord.Color.green())
-        embed.set_footer(text = f"Command ran by {interaction.user.mention}",icon_url=interaction.user.display_icon)
-        embed.add_field(name = "Finish setting up your server with /settings!",value = "To delete your servers data please contact CosmicCrow")
-        await interaction.response.send_message(embed=embed)
-    else:
-        embed=discord.Embed(title="Error!", description="It looks like the setup command was already run in the server!", color=discord.Color.red())
-        await interaction.response.send_message(embed=embed)
-    
+
+
+cogs = [
+    "cogs.admin",
+]
+
+@bot.command()
+@commands.guild_only()
+async def load(ctx):
+    for cog in cogs:
+        await bot.load_extension(cog)
+    await ctx.send(f"Loaded!")
+@bot.command()
+@commands.guild_only()
+async def sync(ctx):
+
+    await ctx.bot.tree.sync(guild=discord.Object(id=919047940843143198))
+    await ctx.send(f"Synced!")
+
+
 bot.run(os.getenv('discord_token'))

@@ -72,3 +72,27 @@ def newserver(id):
     cursor.close()
     sqlite.close()
     return 0
+
+def getserver(id):
+    sqlite = sl.connect('main.db')
+    cursor = sqlite.cursor()
+    item = cursor.execute("SELECT * FROM server WHERE serverid = ?", (int(id),)).fetchone()
+    cursor.close()
+    sqlite.close()
+    return(item)
+
+def changesettings(serverid,setting,value):
+    sqlite = sl.connect('main.db')
+    cursor = sqlite.cursor()
+    item = cursor.execute("SELECT * FROM server WHERE serverid = ?", (int(serverid),)).fetchone()
+    cursor.close()
+    sqlite.close()
+    if not item:
+        return(0)
+    sqlite = sl.connect('main.db')
+    cursor = sqlite.cursor()
+    cursor.execute(f"UPDATE server SET {setting} = ? WHERE serverid = ?", (value,int(serverid),))
+    sqlite.commit()
+    cursor.close()
+    sqlite.close()
+    return(1)
