@@ -254,7 +254,6 @@ class panels(commands.Cog):
         self.bot.add_view(verify_panel())
         
     @app_commands.command(name = "panel")
-    @app_commands.guilds(discord.Object(id=919047940843143198))
     @app_commands.checks.has_permissions(manage_guild=True)
     async def panel(self,interaction: discord.Interaction):
         if getserver(interaction.guild.id)[6]: 

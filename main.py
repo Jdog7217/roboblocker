@@ -41,7 +41,7 @@ async def on_ready():
 @bot.command()
 async def sync(ctx):
     if ctx.author.id == 650431108370137088:
-        await ctx.bot.tree.sync(guild=discord.Object(id=919047940843143198))
+        await ctx.bot.tree.sync()
         await ctx.send(f"Synced!")
 
 @bot.event
