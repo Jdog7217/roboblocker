@@ -18,7 +18,6 @@ def getimage(id,text):
         maxg = random.randrange(50,100)
         maxb = random.randrange(50,100)
 
-
         minr = random.randrange(0,20)
         ming = random.randrange(0,20)
         minb = random.randrange(0,20)
@@ -26,7 +25,6 @@ def getimage(id,text):
         maxr = random.randrange(200,254)
         maxg = random.randrange(200,254)
         maxb = random.randrange(200,254)
-
 
         minr = random.randrange(100,200)
         ming = random.randrange(100,200)
@@ -96,3 +94,11 @@ def changesettings(serverid,setting,value):
     cursor.close()
     sqlite.close()
     return(1)
+
+
+def get_ran(list):
+    a = random.randint(-50,100)
+    if a in list:
+        return(get_ran(list))
+    else:
+        return a

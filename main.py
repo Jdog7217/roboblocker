@@ -9,21 +9,27 @@ import os
 from dotenv import load_dotenv
 import datetime
 load_dotenv()
+from discord import Interaction
+from discord.app_commands import AppCommandError
+cogs = [
+    "cogs.admin",
+    "cogs.panel",
+    "cogs.errors"
+]
 
-
-
-#class client(discord.Client):
-    #def __init__(self, *, intents: discord.Intents):
-        #super().__init__(intents=intents)
+class client(commands.Bot):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents,command_prefix=".")
         #self.tree = app_commands.CommandTree(self)
-    #async def setup_hook(self):
-        #self.tree.copy_global_to(guild=discord.Object(id=919047940843143198))
-        #await self.tree.sync(guild=discord.Object(id=919047940843143198))
-intents = discord.Intents.default()
-intents.message_content = True
+    async def setup_hook(self):
+        for cog in cogs:
+            await bot.load_extension(cog)
 
-#bot = client(intents=intents)
-bot = commands.Bot(command_prefix=".",intents=intents)
+intents = discord.Intents.default()
+
+
+bot = client(intents=intents)
+# = commands.Bot(command_prefix=".",intents=intents)
 
 @bot.event
 async def on_ready():
@@ -32,22 +38,19 @@ async def on_ready():
 
 
 
-cogs = [
-    "cogs.admin",
-]
-
 @bot.command()
-@commands.guild_only()
-async def load(ctx):
-    for cog in cogs:
-        await bot.load_extension(cog)
-    await ctx.send(f"Loaded!")
-@bot.command()
-@commands.guild_only()
 async def sync(ctx):
+    if ctx.author.id == 650431108370137088:
+        await ctx.bot.tree.sync(guild=discord.Object(id=919047940843143198))
+        await ctx.send(f"Synced!")
 
-    await ctx.bot.tree.sync(guild=discord.Object(id=919047940843143198))
-    await ctx.send(f"Synced!")
+@bot.event
+async def on_command_error(ctx, error):
+    pass
+tree = bot.tree
 
+@tree.error
+async def on_app_command_error(interaction: Interaction,error: AppCommandError):
+    pass
 
 bot.run(os.getenv('discord_token'))

@@ -11,6 +11,6 @@ with acc:
             method INTEGER,
             channel INTEGER,
             role INTEGER,
-            disabled BOOLEAN
+            disabled BOOLEAN DEFAULT False
         );
     """)  
