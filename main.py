@@ -26,7 +26,7 @@ class client(commands.Bot):
             await bot.load_extension(cog)
 
 intents = discord.Intents.default()
-
+intents.members = True
 
 bot = client(intents=intents)
 # = commands.Bot(command_prefix=".",intents=intents)
@@ -41,16 +41,12 @@ async def on_ready():
 @bot.command()
 async def sync(ctx):
     if ctx.author.id == 650431108370137088:
-        await ctx.bot.tree.sync()
+        await ctx.bot.tree.sync(guild=discord.Object(id=919047940843143198))
         await ctx.send(f"Synced!")
 
 @bot.event
 async def on_command_error(ctx, error):
     pass
-tree = bot.tree
 
-@tree.error
-async def on_app_command_error(interaction: Interaction,error: AppCommandError):
-    pass
 
 bot.run(os.getenv('discord_token'))

@@ -17,6 +17,7 @@ class admin(commands.Cog):
 
 
     @app_commands.command(name = "setup")
+    @app_commands.guilds(discord.Object(id=919047940843143198))
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self,interaction: discord.Interaction):
         await interaction.response.defer()
@@ -33,7 +34,7 @@ class admin(commands.Cog):
             await interaction.followup.send(embed=embed)
 
 
-    setting = app_commands.Group(name="settings", description="Bot settings")
+    setting = app_commands.Group(name="settings", description="Bot settings", guild_ids=[919047940843143198])
 
     @setting.command()
     @app_commands.checks.has_permissions(manage_guild=True)

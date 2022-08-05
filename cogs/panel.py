@@ -1,7 +1,8 @@
+from code import interact
 from backend import *
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import Forbidden, app_commands
 import sqlite3 as sl
 from typing import Literal
 import os
@@ -16,7 +17,7 @@ user_codes={}
 class verify(discord.ui.View):
 
     def __init__(self,first,second,sign):
-        super().__init__(timeout=10)
+        super().__init__(timeout=120)
         self.all = []
         self.num = [x for x in range(9)]
         self.awnswer = 0
@@ -107,17 +108,23 @@ class verify(discord.ui.View):
             for child in self.children:
                 child.disabled = True
             await self.message.edit(view=self)
-            print(guild)
+            doerror=False
             if guild[5] != None:
                 embed=discord.Embed(title="Correct!", description="Giving you roles...", color=discord.Color.orange())
                 embed.timestamp = datetime.datetime.utcnow()
                 await interaction.response.send_message(embed = embed, ephemeral=True)
                 role = interaction.guild.get_role(guild[5])
-                await interaction.user.add_roles(role)
-                await asyncio.sleep(1)
-                embed=discord.Embed(title="Verified", description=f"{role.mention} given!", color=discord.Color.green())
-                embed.timestamp = datetime.datetime.utcnow()
-                await interaction.edit_original_message(embed=embed)
+                try:
+                    await interaction.user.add_roles(role)
+                    await asyncio.sleep(1)
+                    embed=discord.Embed(title="Verified", description=f"{role.mention} given!", color=discord.Color.green())
+                    embed.timestamp = datetime.datetime.utcnow()
+                    await interaction.edit_original_message(embed=embed)
+                except Forbidden:
+                    embed=discord.Embed(title="Error", description="I dont have the right perms to add roles!", color=discord.Color.red())
+                    embed.timestamp = datetime.datetime.utcnow()
+                    await interaction.edit_original_message(embed = embed)
+                    doerror = True
                 
             
             else:
@@ -132,7 +139,14 @@ class verify(discord.ui.View):
                 file = discord.File(f"./images/{interaction.user.id}.png", filename="image.png")
                 embed.timestamp = datetime.datetime.utcnow()
                 veiw = admin_yes(interaction.user.id)
+
                 veiw.message = await interaction.guild.get_channel(guild[4]).send(embed=embed, file=file,view = veiw)
+                if doerror:
+                    embed=discord.Embed(title="Error", description="I dont have the right perms to add roles!", color=discord.Color.red())
+                    embed.timestamp = datetime.datetime.utcnow()
+                    await interaction.guild.get_channel(guild[4]).send(embed = embed)
+
+                
         except KeyError:
             pass
         for child in self.children:
@@ -166,26 +180,136 @@ async def wrong(interaction,why,wa,self):
                 embed.set_image(url="attachment://image.png")
                 embed.timestamp = datetime.datetime.utcnow()
                 file = discord.File(f"./images/{interaction.user.id}.png", filename="image.png")
-                await interaction.user.guild.get_channel(guild[4]).send(embed=embed, file=file)
+                vei = admin_no(interaction.user.id)
+                vei.message = await interaction.user.guild.get_channel(guild[4]).send(embed=embed, file=file,view = vei)
+                
     for child in self.children:
         child.disabled = True
     await self.message.edit(view=self)
 
-
-class admin_yes(discord.ui.View,):
+class admin_no(discord.ui.View,):
     def __init__(self,userid):
-        self.user_id = userid
-        super().__init__(timeout=20)
+        self.user_id = int(userid)
+        super().__init__(timeout=180)
     
     @discord.ui.button(label='Kick', style=discord.ButtonStyle.secondary, custom_id='kick')
     async def kick_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("hi")
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+
+            await interaction.guild.kick(userp)
+            doerror=False
+        except Forbidden:
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Kicked", description=f"Kicked `{userp}` from this server\nKicked by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to kick users!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+
     @discord.ui.button(label='Ban', style=discord.ButtonStyle.red, custom_id='ban')
     async def ban_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("hi")
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+            await interaction.guild.ban(userp)
+            doerror=False
+        except Forbidden:
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Banned", description=f"Banned `{userp}` from this server\nBanned by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to ban users!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+
+    @discord.ui.button(label='Verify', style=discord.ButtonStyle.primary, custom_id='unv')
+    async def unv_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+            await userp.add_roles(interaction.guild.get_role(getserver(interaction.guild.id)[5]))
+            doerror=False
+        except Forbidden:
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Verified", description=f"Force Verified `{userp}`\nVerified by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to add roles!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+    
+    
+
+class admin_yes(discord.ui.View,):
+    def __init__(self,userid):
+        self.user_id = int(userid)
+        super().__init__(timeout=180)
+    
+    @discord.ui.button(label='Kick', style=discord.ButtonStyle.secondary, custom_id='kick')
+    async def kick_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+            await interaction.guild.kick(userp)
+            doerror=False
+        except Forbidden: 
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Kicked", description=f"Kicked `{userp}` from this server\nKicked by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to kick users!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+
+    @discord.ui.button(label='Ban', style=discord.ButtonStyle.red, custom_id='ban')
+    async def ban_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+            await interaction.guild.ban(userp)
+            doerror=False
+        except Forbidden:
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Banned", description=f"Banned `{userp}` from this server\nBanned by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to ban users!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+
     @discord.ui.button(label='Un-Verify', style=discord.ButtonStyle.primary, custom_id='unv')
     async def unv_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("hi")
+        userp = interaction.guild.get_member(self.user_id)
+        try:
+            await userp.remove_roles(interaction.guild.get_role(getserver(interaction.guild.id)[5]))
+
+            doerror=False
+        except Forbidden:
+            doerror=True
+        if not doerror:
+            embed=discord.Embed(title=f"Un-Verified", description=f"Un-Verified `{userp}`\nUn-Verified by: `{interaction.user}`", color=discord.Color.red())
+            embed.set_footer(text = f"{interaction.user.name}",icon_url=interaction.user.avatar.url)
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+        else:
+            embed=discord.Embed(title="Error", description="I dont have the right perms to remove roles!", color=discord.Color.red())
+            embed.timestamp = datetime.datetime.utcnow()
+            await interaction.response.send_message(embed = embed)
+
+\
 
 class verify_panel(discord.ui.View,):
     def __init__(self):
@@ -220,7 +344,7 @@ class verify_panel(discord.ui.View,):
                 vy =verify(first,second,sign)
                 await interaction.response.send_message(file = file, embed=embed, ephemeral=True,view=vy)
                 vy.message = await interaction.original_message()
-                await asyncio.sleep(10)
+                await asyncio.sleep(120)
                 try:
                     a=user_codes[interaction.user.id]
                 except KeyError:
@@ -254,6 +378,7 @@ class panels(commands.Cog):
         self.bot.add_view(verify_panel())
         
     @app_commands.command(name = "panel")
+    @app_commands.guilds(discord.Object(id=919047940843143198))
     @app_commands.checks.has_permissions(manage_guild=True)
     async def panel(self,interaction: discord.Interaction):
         if getserver(interaction.guild.id)[6]: 
@@ -318,7 +443,10 @@ class panels(commands.Cog):
                         await message.guild.get_channel(guild[4]).send(embed=embed, file=file)
                 
                         
-    
+
+async def on_view_error(self,interaction,error):
+    await interaction.channel.send(error)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(panels(bot))
     

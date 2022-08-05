@@ -14,3 +14,14 @@ with acc:
             disabled BOOLEAN DEFAULT False
         );
     """)  
+with acc:
+    acc.execute("""
+        CREATE TABLE logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            serverid INTEGER NOT NULL,
+            userid INTEGER, 
+            operatorid INTEGER,
+            event STRING,
+            time INTEGER
+        );
+    """)  

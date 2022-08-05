@@ -1,0 +1,6 @@
+.env
+env/
+__pycache__/
+discord.py/
+*.png
+main.db
