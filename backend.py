@@ -6,7 +6,7 @@ import time
 import os
 import sqlite3 as sl
 import string
-
+import requets
 def getimage(id,text):
     red = 0
     blue = 0
