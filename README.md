@@ -1,5 +1,5 @@
 
-Bot that just does verification for u
+Bot that just does verification for you
 
 
 To run the bot, download all files from the master branch and install all libraries including discord.py v2. 
