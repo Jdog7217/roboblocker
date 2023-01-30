@@ -17,7 +17,6 @@ class admin(commands.Cog):
 
 
     @app_commands.command(name = "setup")
-    @app_commands.guilds(discord.Object(id=919047940843143198))
     @app_commands.checks.has_permissions(manage_guild=True)
     async def setup(self,interaction: discord.Interaction):
         await interaction.response.defer()
