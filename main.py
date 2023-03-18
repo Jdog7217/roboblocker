@@ -38,4 +38,4 @@ async def on_ready():
 
 
 
-bot.run("MTA4Njc4MDc2MzE0NTUwNjg1Nw.Gjv4pX.C_geBOacSyoDdyjEgcLxZV7RHyVFPuFRfE7ulQ")
+bot.run(os.environ.get("TOKEN"))
